@@ -9,9 +9,10 @@
 
 
 
-library("daymetr")
+library(daymetr)
 
-setwd("Z:/Daymet_V3_Daily/data/Thompson/data/")
+setwd("00_Data")
+# setwd("Z:/Daymet_V3_Daily/data/Thompson/data/")
 # setwd("D:/Daymet_Kim/")
 
 # Download code retrieved from https://khufkens.github.io/daymetr/
@@ -52,6 +53,7 @@ download_daymet_ncss(location = c(49.37173, -97.22910, 36.98677, -71.87048),
                      start = 2015,
                      end = 2015,
                      param = "tmax",
+                     path = getwd())
                      # Change path for particular user
                      # path = "Z:/Daymet_V3_Daily/data/Thompson/data/")
 
@@ -62,7 +64,8 @@ download_daymet_ncss(location = c(49.37173, -97.22910, 36.98677, -71.87048),
                      start = 2016,
                      end = 2017,
                      param = "tmin",
+                     path = getwd())
                      # Change path for particular user
-                     path = "D:/Daymet_Kim/")
+                     # path = "D:/Daymet_Kim/")
 
 
