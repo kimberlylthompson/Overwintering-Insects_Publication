@@ -1,10 +1,10 @@
 # Overwintering-Insects_Publication
 
-Code author: Kimberly L. Thompson
+Code author: 
 
 The vulnerability of overwintering insects to loss of the subnivium
 
-Kimberly L. Thompson, Jonathan N. Pauli, Benjamin Zuckerberg
+
 
 Preprint DOI:
 
