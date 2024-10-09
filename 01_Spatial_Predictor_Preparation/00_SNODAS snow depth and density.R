@@ -37,6 +37,7 @@ library(tidyr)
 
 # change path to where downloaded files reside
 # setwd("D:/Workspace_Megan/SNODAS/gzdatfiles")
+setwd("D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Downloaded")
 allfiles<-list.files(pattern="*.bil")
 allfiles<-as.data.frame(allfiles)
 colnames(allfiles)<-"from"
