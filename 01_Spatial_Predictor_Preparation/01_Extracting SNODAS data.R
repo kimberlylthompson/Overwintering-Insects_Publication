@@ -9,6 +9,9 @@
 # Ice Data Center for the period of 
 # Dec 1 2016 - March 31 2017, which was downloaded in compressed .tar files.
 
+# Note the Canada + US files were corrupted for Jan 21, Feb 1, Feb 3, and Feb 8;
+# therefore the data for these days is for the US only.
+
 # Creates files:
 # 
 
@@ -19,7 +22,6 @@ rm(list = ls() )
 #set working dir() 
 gc() #releases memory
 
-library(terra)
 library(data.table)
 library(stringr)
 
@@ -35,6 +37,9 @@ target_dir <- "D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files"
 
 # List all tar files in that directory with full paths
 tar_files <- list.files(tar_dir, pattern = "*.tar", full.names = TRUE)
+
+# # List all tar files in that directory with full paths
+# tar_files <- list.files(tar_dir, pattern = "_masked", full.names = TRUE)
 
 # index <- 1
 # tar_file <- tar_files[index]
@@ -56,7 +61,7 @@ for (tar_file in tar_files) {
   }
   
   # Filter for the desired patterns using regular expressions
-  desired_files <- files_in_tar[str_detect(files_in_tar, "zz_ssmv11034.*\\.dat\\.gz|zz_ssmv11036.*\\.dat\\.gz")]
+  desired_files <- files_in_tar[str_detect(files_in_tar, "ssmv11034.*\\.dat\\.gz|ssmv11036.*\\.dat\\.gz")]
   
   # Extract only the specified .dat.gz files if they exist
   if (length(desired_files) > 0) {
@@ -78,26 +83,17 @@ for (tar_file in tar_files) {
 
 
 #######################################
+# After doing procedure for masked and then 4 days of unmasked:
 
-# There were several files that were corrupted or incomplete and needed
-# to be downloaded manually:
-setwd("C:/Users/ff69upeb/Downloads")
+# Within the target directory there will now be 245 files
 
-# SWE and snow depth were missing for Feb 3
-untar(tarfile = "SNODAS_unmasked_20170203.tar", exdir = "./Test_Extract/02-03-17")
+# We would expect to have 242 (121 days x SWE, 121 x depth).
 
+# BUT, SWE values existed for the unmasked version (USA + Canada) for 
+# days 1/21/17, 2/1/17, and 2/8/17, which is why there are an extra
+# 3 files.
 
-
-
-setwd("C:/Users/ff69upeb/Desktop")
-
-untar(tarfile = "SNODAS_unmasked_20170203.tar", exdir = "./Test_Extract/02-03-17")
-
-setwd("C:/Users/ff69upeb/Desktop/Test_Extract")
-
-test2 <- read.table(gzfile("zz_ssmv11039lL00T0024TTNATS2016120105DP000.dat.gz"))
-test <- fread("zz_ssmv11050lL00T0024TTNATS2016120105DP000.txt.gz")
-
+# Note that extra SWE files were deleted manually (uSA only)
 
 
 # VAriables from website

@@ -154,6 +154,64 @@ for(i in 1:length(mar.files)) {
 
 
 ###########################
+###  Supplemental Data  ###
+###########################
+
+# There were several .tar files that were corrupted or incomplete and needed
+# to be downloaded manually:
+
+# These include
+# SWE: February 3, 2017
+# Depth: January 21, 2017
+#        Feburary 1, 2017
+#        February 3, 2017
+#        February 8, 2017
+
+# After trying to download the unmasked version, the problem remains, but the
+# masked version (including USA only should be ok so will use this for these
+# days instead)
+
+# Jan 21
+# Define the URL
+day1.url <- "https://noaadata.apps.nsidc.org/NOAA/G02158/masked/2017/01_Jan/SNODAS_20170121.tar"
+
+# Destination name
+destination1 <- "SNODAS_masked_20170121.tar"
+
+download.file(day1.url, destination1, mode = "wb")
+
+# Feb 1
+# Define the URL
+day2.url <- "https://noaadata.apps.nsidc.org/NOAA/G02158/masked/2017/02_Feb/SNODAS_20170201.tar"
+
+# Destination name
+destination2 <- "SNODAS_masked_20170201.tar"
+
+download.file(day2.url, destination2, mode = "wb")
+
+# Feb 3
+# Define the URL
+day3.url <- "https://noaadata.apps.nsidc.org/NOAA/G02158/masked/2017/02_Feb/SNODAS_20170203.tar"
+
+# Destination name
+destination3 <- "SNODAS_masked_20170203.tar"
+
+download.file(day3.url, destination3, mode = "wb")
+
+
+# Feb 8
+# Define the URL
+day4.url <- "https://noaadata.apps.nsidc.org/NOAA/G02158/masked/2017/02_Feb/SNODAS_20170208.tar"
+
+# Destination name
+destination4 <- "SNODAS_masked_20170208.tar"
+
+download.file(day4.url, destination4, mode = "wb")
+
+
+
+
+###########################
 ### Additional Data     ###
 ###########################
 
@@ -179,7 +237,7 @@ for(i in 1:length(mar.files)) {
 
 
 # Define the URL
-swe.url <- "https://noaadata.apps.nsidc.org/NOAA/G02158/ancillary/SNODAS_Zero_Repair_Mask.tif"
+url <- "https://noaadata.apps.nsidc.org/NOAA/G02158/ancillary/SNODAS_Zero_Repair_Mask.tif"
 
 # Destination name
 destination <- "SNODAS_Zero_Repair_Mask.tif"
