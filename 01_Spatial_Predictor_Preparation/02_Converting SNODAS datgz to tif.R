@@ -21,8 +21,11 @@ rm(list = ls() )
 gc() #releases memory
 
 library(terra)
+library(raster)
+library(rgdal)
 library(data.table)
 library(R.utils)
+library(stringr)
 
 
 ###########################################
@@ -30,7 +33,8 @@ library(R.utils)
 ###########################################
 
 # Define directory where .dat.gz files are stored
-setwd("D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
+# setwd("D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
+setwd("~/Library/CloudStorage/GoogleDrive-mainelobster28@gmail.com/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
 
 # Define file patterns
 swe_pattern <- "11034"
@@ -52,14 +56,91 @@ snow_depth_files <- all_files[grepl(snow_depth_pattern, all_files)]
 swe_stack <- rast()
 snow_depth_stack <- rast()
 
-# For testing with 1 file before running the loop
-# index <- 1
-# file <- swe_files[index]
+# Extract data from compressed .gz files
+for (file in all_files) {
+  
+  # Extract the contents of the .gz file
+  gunzip(file, remove = TRUE)
+  
+}
+
+
+# List all .dat files (now the .gz will be gone)
+all_files <- list.files(pattern = "\\.dat")
+
+# Separate files into SWE and snow depth
+swe_files <- all_files[grepl(swe_pattern, all_files)]
+snow_depth_files <- all_files[grepl(snow_depth_pattern, all_files)]
+
+# Extract data
+# SWE
+for (i in 1:length(swe_files)) {
+  
+  # Define input .dat file and output raster file names
+  input_file <- swe_files[i]
+  
+  # Extract the data from the file name
+  date_str <- str_extract(input_file, "\\d{8}")
+  
+  # Convert date to how I want the layers to be named
+  formatted_date <- paste0("X", substr(date_str, 1, 4), ".", 
+                           substr(date_str, 5, 6), ".", 
+                           substr(date_str, 7, 8))
+  
+  # Read the binary file but this differs between masked and unmasked versions
+  if(stringr :: str_detect(input_file, pattern = "us")) {
+    
+    # Read the binary file
+    swe_data <- readBin(input_file, "integer", n = 6935 * 3351, size = 2, signed = TRUE)
+    
+    # Create a raster object
+    swe.tmp_raster <- terra :: rast(nrows = 3351, ncols = 6935, xmn = -124.733333333333, 
+                            xmx = -66.9416666666667, ymn = 24.95, ymx = 52.8749999999999, 
+                            crs = "+proj=longlat +datum=WGS84")
+    
+    # Assign values to the raster
+    values(swe.tmp_raster) <- swe_data
+    
+    # Name the raster layer
+    names(swe.tmp_raster) <- formatted_date
+    
+    # Add the temporary raster to the stack
+    swe_stack <- c(swe_stack, swe.tmp_raster)
+    
+  } else {
+    
+    if(stringr :: str_detect(input_file, pattern = "zz")) {
+      
+      # Read the binary file
+      swe_data <- readBin(input_file, "integer", n = 8192 * 4096, size = 2, signed = TRUE)
+      
+      # Create a raster object
+      swe.tmp_raster <- terra :: rast(nrows = 4096, ncols = 8192, xmn = -130.51250000000002, 
+                                      xmx = -66.9416666666667, ymn = 24.95, ymx = 58.229166666666664, 
+                                      crs = "+proj=longlat +datum=WGS84")
+      
+      # Assign values to the raster
+      values(swe.tmp_raster) <- swe_data
+      
+      # Name the raster layer
+      names(swe.tmp_raster) <- formatted_date
+      
+      # Add the temporary raster to the stack
+      swe_stack <- c(swe_stack, swe.tmp_raster)
+      
+    } # end of else
+  } # end of if
+  print(i)
+} # end of swe loop
+  
+
+
+
+
+
 
 # Extract data
 for (file in swe_files) {
-  
-  gunzip(file, remove = FALSE)
   
   # Read data (assuming it's in a suitable format for terra)
   temp_raster <- rast(file)
