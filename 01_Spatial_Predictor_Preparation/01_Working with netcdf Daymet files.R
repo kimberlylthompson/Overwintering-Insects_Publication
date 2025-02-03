@@ -2,6 +2,37 @@
 ######         Working with netCDF data from DAYMET for daily tmax and tmin             ######
 ##############################################################################################
 
+library(terra)
+
+#ncpath = path where the file was downloaded
+ncpath <- "D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/Daymet/"
+
+#ncname = name of the file
+ncname <- "tmax_daily_2016_ncss"
+
+#ncfname = pasted path and name
+ncfname <- paste(ncpath, ncname, ".nc", sep="")
+
+#Name of the variable shown in the file
+dname <- "tmax"
+
+# Read the netcdf file
+tmax2016 <- terra :: rast(ncfname, var = dname)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #Code tutorial obtained from http://geog.uoregon.edu/bartlein/courses/geog490/week04-netCDF.html
 
 # Load the ncdf4 package
