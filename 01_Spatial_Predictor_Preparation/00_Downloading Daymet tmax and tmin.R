@@ -53,15 +53,15 @@ bbox <- read.csv("Bounding Box Coordinates.csv", header = TRUE)
 #Coordinates:
 # min       max
 # x -98     -72
-# y  32      55
+# y  37      55
 
 
 # Download tmax files
-download_daymet_ncss(location = c(55, -98, 32, -72),
+download_daymet_ncss(location = c(55, -98, 37, -72),
                      start = 2016,
                      end = 2017,
                      param = "tmax",
-                     path = "D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/Daymet/")
+                     path = "H:/My Drive/Ch 4 Bumblebees/00_Data/Raw/Daymet/")
                      # Change path for particular user
                      # path = "Z:/Daymet_V3_Daily/data/Thompson/data/")
 

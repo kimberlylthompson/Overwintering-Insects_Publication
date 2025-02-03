@@ -48,13 +48,13 @@ ggplot() + geom_sf(data = greatlakesregion)
 # SNODAS for snow depth and density does not go all the way north through the provinces.
 
 # To avoid downloading unnecessary data (for temperature for example), crop
-# greatlakesregion to 55 degrees north as the upper limit
+# greatlakesregion to 54 degrees north as the upper limit
 # and the western limit at 98 degrees W
 # and the eastern limit 72 W
 
 # Create a bounding box with desired coordinates in WGS84
 new_bbox <- st_bbox(c(xmin = -98, xmax = -72, 
-                      ymin = 32, ymax = 55), crs = 4326)
+                      ymin = 37, ymax = 55), crs = 4326)
 
 # Convert to sf object
 new_bbox_sf <- st_as_sfc(new_bbox)
@@ -72,7 +72,8 @@ ggplot() + geom_sf(data = cropped_greatlakesregion)
 
 
 # Save the shapefile
-st_write(cropped_greatlakesregion, "Great_Lakes_States and Prov.shp")
+st_write(cropped_greatlakesregion, "Great_Lakes_States and Prov.shp",
+         append = TRUE)
 
 # Make a dataframe with the degree and meter coordinates
 
