@@ -59,9 +59,9 @@ nlcd <- terra :: rast("D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/NLCD 2016/Annual_
 region2 <- sf :: st_transform( region, crs(nlcd) )
 
 # Crop the nation-wide raster to the states extent
-nlcd_crop <- terra :: crop(nlcd, extent(region))
+nlcd_crop <- terra :: crop(nlcd, region2)
 
-plot(region)
+plot(region2$geometry)
 plot(nlcd_crop, add=TRUE)
 
 # Collapse some of the landcover classes (using the big NLCD raster)
