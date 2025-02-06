@@ -33,13 +33,8 @@ library(stringr)
 ###########################################
 
 # Define directory where .dat.gz files are stored
-<<<<<<< HEAD
-setwd("H:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
-# setwd("~/Library/CloudStorage/GoogleDrive-mainelobster28@gmail.com/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
-=======
-# setwd("D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
-setwd("~/Library/CloudStorage/GoogleDrive-mainelobster28@gmail.com/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
->>>>>>> f71b9b43c2ce4a4993c0575a12ed45b45c29af71
+# (not stored in Github 00_Data folder)
+setwd("D:/My Drive/Ch 4 Bumblebees/00_Data/Raw/SNODAS/Datgz files")
 
 # Define file patterns
 swe_pattern <- "11034"
@@ -48,7 +43,6 @@ snow_depth_pattern <- "11036"
 # List all .dat.gz files 
 all_files <- list.files(pattern = "\\.dat\\.gz")
 
-<<<<<<< HEAD
 
 ###########################################
 ####    Uncompressing .gz files        ####
@@ -61,7 +55,7 @@ for (i in 1:length(all_files)) {
   gunzip(all_files[i], remove = TRUE)
   
   print(i)
-=======
+
 # Separate files into SWE and snow depth
 swe_files <- all_files[grepl(swe_pattern, all_files)]
 snow_depth_files <- all_files[grepl(snow_depth_pattern, all_files)]
@@ -80,18 +74,16 @@ for (file in all_files) {
   
   # Extract the contents of the .gz file
   gunzip(file, remove = TRUE)
->>>>>>> f71b9b43c2ce4a4993c0575a12ed45b45c29af71
+
   
 }
 
 
-<<<<<<< HEAD
+
 ###########################################
 ####    Converting files to rasters    ####
 ###########################################
 
-=======
->>>>>>> f71b9b43c2ce4a4993c0575a12ed45b45c29af71
 # List all .dat files (now the .gz will be gone)
 all_files <- list.files(pattern = "\\.dat")
 
@@ -99,7 +91,6 @@ all_files <- list.files(pattern = "\\.dat")
 swe_files <- all_files[grepl(swe_pattern, all_files)]
 snow_depth_files <- all_files[grepl(snow_depth_pattern, all_files)]
 
-<<<<<<< HEAD
 # Initialize empty raster stacks
 # USA and USA+Can have different extents, so keep separate for now
 swe_stack_usa <- raster :: stack()
@@ -107,8 +98,6 @@ swe_stack_can <- raster :: stack()
 depth_stack_usa <- raster :: stack()
 depth_stack_can <- raster :: stack()
 
-=======
->>>>>>> f71b9b43c2ce4a4993c0575a12ed45b45c29af71
 # Extract data
 # SWE
 for (i in 1:length(swe_files)) {
@@ -120,8 +109,8 @@ for (i in 1:length(swe_files)) {
   date_str <- str_extract(input_file, "\\d{8}")
   
   # Convert date to how I want the layers to be named
-  formatted_date <- paste0("X", substr(date_str, 1, 4), ".", 
-                           substr(date_str, 5, 6), ".", 
+  formatted_date <- paste0("X", substr(date_str, 1, 4), "-", 
+                           substr(date_str, 5, 6), "-", 
                            substr(date_str, 7, 8))
   
   # Read the binary file but this differs between masked and unmasked versions
@@ -131,11 +120,7 @@ for (i in 1:length(swe_files)) {
     swe_data <- readBin(input_file, "integer", n = 6935 * 3351, size = 2, signed = TRUE)
     
     # Create a raster object
-<<<<<<< HEAD
     swe.tmp_raster <- raster :: raster(nrows = 3351, ncols = 6935, xmn = -124.733333333333, 
-=======
-    swe.tmp_raster <- terra :: rast(nrows = 3351, ncols = 6935, xmn = -124.733333333333, 
->>>>>>> f71b9b43c2ce4a4993c0575a12ed45b45c29af71
                             xmx = -66.9416666666667, ymn = 24.95, ymx = 52.8749999999999, 
                             crs = "+proj=longlat +datum=WGS84")
     
@@ -146,8 +131,7 @@ for (i in 1:length(swe_files)) {
     names(swe.tmp_raster) <- formatted_date
     
     # Add the temporary raster to the stack
-<<<<<<< HEAD
-    swe_stack_usa <- addLayer(swe_stack_usa, swe.tmp_raster)
+    swe_stack_usa <- raster :: addLayer(swe_stack_usa, swe.tmp_raster)
     
   } else {
     
@@ -173,9 +157,13 @@ for (i in 1:length(swe_files)) {
 } # end of swe loop
 
 
+
+
+
+
+
 # 53: swe_data large integer 17789648 elements
 # 52: swe_data large integer 33554432 elements
-=======
     swe_stack <- c(swe_stack, swe.tmp_raster)
     
   } else {
@@ -207,7 +195,7 @@ for (i in 1:length(swe_files)) {
 
 
 
->>>>>>> f71b9b43c2ce4a4993c0575a12ed45b45c29af71
+
 
 
 
