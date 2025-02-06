@@ -93,7 +93,10 @@ for (tar_file in tar_files) {
 # days 1/21/17, 2/1/17, and 2/8/17, which is why there are an extra
 # 3 files.
 
-# Note that extra SWE files were deleted manually (uSA only)
+# However, these files are also corrupted so the USA only version
+# will have to be used.
+
+# Note that the corrupted maasked SWE files were deleted manually
 
 
 # VAriables from website
