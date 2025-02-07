@@ -29,10 +29,27 @@ gc() #releases memory
 
 library(terra)
 library(raster)
+library(sf)
 library(rgdal)
 library(data.table)
 library(R.utils)
 library(stringr)
+
+print("Libraries Loaded")
+
+
+###############################################
+###                                         ###
+###              Data Loading               ###
+###                                         ###
+###############################################
+
+# setwd <- "00_Data"
+
+# Load Great lakes states and provinces
+# states <- sf :: st_read("~/share/groups/mas/04_personal/Kim_T/Data/Great_Lakes_States and Prov.shp")
+states <- sf :: st_read("/gpfs1/data/iupdate/Modeling_Inputs2/Overwintering_Insects")
+# states <- sf :: st_read("Great_Lakes_States and Prov.shp")
 
 
 ###########################################
@@ -71,6 +88,8 @@ swe_stack_can <- raster :: stack()
 
 # Extract data
 for (i in 1:length(swe_files)) {
+  # for(i in 65:70) { # for testing
+  # for(i in 1:4) { # for testing
   
   # Define input .dat file and output raster file names
   input_file <- swe_files[i]
@@ -126,6 +145,20 @@ for (i in 1:length(swe_files)) {
   print(i)
 } # end of swe loop
 
+print("Separate Stacks for USA and Canada Created")
+
+###############################################
+###                                         ###
+###           Session Diagnostics           ###
+###                                         ###
+###############################################
+
+# Sorted list of memory storage
+print(sort(sapply(ls(), function(x) format(object.size(get(x)), unit = 'auto'))))
+
+# Total memory usage
+print("Total Memory Used in R session: ")
+print(object.size(x=lapply(ls(), get)), units="Mb")
 
 ###########################################
 ####                                   ####
@@ -134,50 +167,112 @@ for (i in 1:length(swe_files)) {
 ###########################################
 
 # Convert the Rasterstacks to spatrasters
-can <- rast(swe_stack_can)
-usa <- rast(swe_stack_usa)
+can <- terra :: rast(swe_stack_can)
+print("Canada converted to spatraster")
+
+usa <- terra :: rast(swe_stack_usa)
+print("USA converted to spatraster")
+
+# Clean up workspace
+rm(swe_stack_can, swe_stack_usa, swe.tmp_raster)
+gc()
 
 # Resample USA data
-usa_resampled <- resample(usa, can)
+usa_resampled <- terra :: resample(usa, can)
+
+print("USA resampled")
 
 # Create new layers for missing dates
 
 # Dates of missing layers
 missing_dates <- c("2017-01-21", "2017-02-01", "2017-02-03", "2017-02-08")
+# missing_dates <- c("2017-02-01", "2017-02-03") # for testing
 
 for (date in missing_dates) {
   # Find the index of the USA layer for this date
   usa_index <- which(names(usa_resampled) == paste0("X", gsub("-", ".", date)))
   
+  print("usa index defined")
+  
   # Find the indices of the preceding and subsequent days in the CAN stack
-  can_index <- which(as.Date(gsub("X", "", names(can), fixed=TRUE), format="%Y.%m.%d") == as.Date(date))
-  prev_index <- can_index - 1
-  next_index <- can_index + 1
+  prev_index <- paste0("X", gsub("-", ".", as.Date(date) - 1))
+  next_index <- paste0("X", gsub("-", ".", as.Date(date) + 1))
+  
+  print("Canada index defined")
   
   # Create a new layer
   new_layer <- can[[1]]  # Template layer with correct extent
   
-  # Fill values where extents match
-  common_extent <- ext(intersect(ext(can), ext(usa_resampled)))
-  new_layer[common_extent] <- usa_resampled[[usa_index]][common_extent]
+  # Make all the values NA
+  new_layer <- setValues(new_layer, NA)
+  names(new_layer) <- paste0("X", gsub("-", ".", as.Date(date)))
   
-  # Fill remaining values with average of preceding and subsequent days
-  mask <- is.na(new_layer)
-  new_layer[mask] <- (can[[prev_index]][mask] + can[[next_index]][mask]) / 2
+  print("New template layer created")
   
-  # Add the new layer to the CAN stack
-  can <- c(can[1:prev_index], new_layer, can[next_index:nlyr(can)])
-  names(can)[can_index] <- paste0("X", gsub("-", ".", date))
+  # Fill values from USA raster where they exist and are not NA
+  new_layer <- terra::cover(new_layer, usa_resampled[[usa_index]])
+  
+  print("USA values filled where they exist")
+  
+  # Create a mask for all NA values in the new layer
+  # Canada values are seen as -3624
+  na_mask <- new_layer == -3624 | is.na(new_layer)
+  
+  # Fill NA values with average of preceding and subsequent days from CAN
+  avg_layer <- (can[[prev_index]] + can[[next_index]]) / 2
+  new_layer[na_mask] <- avg_layer[na_mask]
+  
+  # Find the numeric indices for the previous and next layers
+  prev_num_index <- which(names(can) == prev_index)
+  next_num_index <- which(names(can) == next_index)
+  
+  # Create a new SpatRaster with the layers before the new one
+  can_before <- can[[1:prev_num_index]]
+  
+  # Create a new SpatRaster with the layers after the new one
+  can_after <- can[[next_num_index:nlyr(can)]]
+  
+  # Combine the parts with the new layer
+  can <- c(can_before, new_layer, can_after)
+  
+  print("Missing date filled")
 }
 
-# Ensure the layers are ordered correctly
 
-# Sort layers by date
-layer_dates <- as.Date(gsub("X", "", names(can), fixed=TRUE), format="%Y.%m.%d")
-can <- can[[order(layer_dates)]]
+###########################################
+####                                   ####
+####      Crop to Great Lakes region   ####
+####                                   ####
+###########################################
+
+# Project states to the same as the raster stack (to speed computation)
+states <- sf :: st_transform(states, crs(can))
+
+# Crop the raster stack to the extent of the states/provinces
+can <- terra :: crop(can, states)
+
+
+###########################################
+####                                   ####
+####          Write the stack          ####
+####                                   ####
+###########################################
 
 # Write the raster stack
 path <- "/gpfs1/data/iupdate/Analysis_Output2/Insects/"
 writeRaster(can, paste(path, "SWE Canada USA.tif", sep = ""))
 
+print("Raster stack written")
 
+###############################################
+###                                         ###
+###           Session Diagnostics           ###
+###                                         ###
+###############################################
+
+# Sorted list of memory storage
+print(sort(sapply(ls(), function(x) format(object.size(get(x)), unit = 'auto'))))
+
+# Total memory usage
+print("Total Memory Used in R session: ")
+print(object.size(x=lapply(ls(), get)), units="Mb")
