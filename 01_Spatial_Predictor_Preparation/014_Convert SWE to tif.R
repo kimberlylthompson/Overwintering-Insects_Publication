@@ -38,20 +38,6 @@ library(stringr)
 print("Libraries Loaded")
 
 
-###############################################
-###                                         ###
-###              Data Loading               ###
-###                                         ###
-###############################################
-
-# setwd <- "00_Data"
-
-# Load Great lakes states and provinces
-# states <- sf :: st_read("~/share/groups/mas/04_personal/Kim_T/Data/Great_Lakes_States and Prov.shp")
-states <- sf :: st_read("/gpfs1/data/iupdate/Modeling_Inputs2/Overwintering_Insects")
-# states <- sf :: st_read("Great_Lakes_States and Prov.shp")
-
-
 ###########################################
 ####      Define file conditions       ####
 ###########################################
@@ -89,6 +75,7 @@ swe_stack_can <- raster :: stack()
 # Extract data
 for (i in 1:length(swe_files)) {
   # for(i in 65:70) { # for testing
+  # for (i in 53:71) { # for testing
   # for(i in 1:4) { # for testing
   
   # Define input .dat file and output raster file names
@@ -187,6 +174,7 @@ print("USA resampled")
 # Dates of missing layers
 missing_dates <- c("2017-01-21", "2017-02-01", "2017-02-03", "2017-02-08")
 # missing_dates <- c("2017-02-01", "2017-02-03") # for testing
+# missing_dates <- c("2017-01-21")
 
 for (date in missing_dates) {
   # Find the index of the USA layer for this date
@@ -218,9 +206,13 @@ for (date in missing_dates) {
   # Canada values are seen as -3624
   na_mask <- new_layer == -3624 | is.na(new_layer)
   
+  print("NA mask created")
+  
   # Fill NA values with average of preceding and subsequent days from CAN
   avg_layer <- (can[[prev_index]] + can[[next_index]]) / 2
   new_layer[na_mask] <- avg_layer[na_mask]
+  
+  print("Values filled with Canadian average")
   
   # Find the numeric indices for the previous and next layers
   prev_num_index <- which(names(can) == prev_index)
@@ -236,6 +228,10 @@ for (date in missing_dates) {
   can <- c(can_before, new_layer, can_after)
   
   print("Missing date filled")
+  
+  rm(avg_layer, can_after, can_before, na_mask, new_layer)
+  gc()
+  
 }
 
 
@@ -245,11 +241,20 @@ for (date in missing_dates) {
 ####                                   ####
 ###########################################
 
-# Project states to the same as the raster stack (to speed computation)
-states <- sf :: st_transform(states, crs(can))
+# Unfortunately after projecting, I could not get the states to line up
+# with the raster or vice versa. 
 
-# Crop the raster stack to the extent of the states/provinces
-can <- terra :: crop(can, states)
+# Therefore I will just crop to the original bounding box that was created in
+# WGS84.
+
+# Create a bounding box
+bbox <- c(xmin = -98, xmax = -72, ymin = 37, ymax = 55)
+
+# Create an extent object for the bounding box
+ext <- terra :: ext(bbox)
+
+# Crop the raster to the bounding box extent
+can <- terra :: crop(can, ext)
 
 
 ###########################################
