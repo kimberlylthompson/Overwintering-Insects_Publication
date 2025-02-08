@@ -1,11 +1,11 @@
 #################################################################################################
 #########            Converting SNODAS data in .dat files to rasters             ################
-########                           SNOW WATER EQUIVALENT                         ################
+########                               SNOW DEPTH                                ################
 #################################################################################################
 
 # Author: Kimberly Thompson
 
-# This code converts snow water equivalent data contained in .dat
+# This code converts snow depth data contained in .dat
 # files to raster files (.tif).
 # One file for each day in the 
 # Dec 1 2016 - March 31 2017
@@ -52,8 +52,8 @@ setwd("~/share/groups/mas/04_personal/Kim_T/Insect Cold Tolerance/00_Data/Raw/SN
 # setwd("/gpfs1/data/iupdate/Modeling_Inputs2/Overwintering_Insects/SNODAS")
 
 # Define file patterns
-swe_pattern <- "11034"
-# snow_depth_pattern <- "11036"
+# swe_pattern <- "11034"
+snow_depth_pattern <- "11036"
 
 
 
@@ -65,28 +65,28 @@ swe_pattern <- "11034"
 all_files <- list.files(pattern = "\\.dat")
 
 # Separate files into SWE and snow depth
-swe_files <- all_files[grepl(swe_pattern, all_files)]
-# snow_depth_files <- all_files[grepl(snow_depth_pattern, all_files)]
+# swe_files <- all_files[grepl(swe_pattern, all_files)]
+snow_depth_files <- all_files[grepl(snow_depth_pattern, all_files)]
 
 # Initialize empty raster stacks
 # USA and USA+Can have different extents, so keep separate for now
-swe_stack_usa <- raster :: stack()
-swe_stack_can <- raster :: stack()
-# depth_stack_usa <- raster :: stack()
-# depth_stack_can <- raster :: stack()
+# swe_stack_usa <- raster :: stack()
+# swe_stack_can <- raster :: stack()
+depth_stack_usa <- raster :: stack()
+depth_stack_can <- raster :: stack()
 
 # Extract data
-# for (i in 1:length(swe_files)) {
+# for (i in 1:length(snow_depth_files)) {
 # for(i in 5:35) { # Batch 1: December
 # for(i in c(1, 36:65)) { # Batch 2: January
-# for(i in c(2:4, 65:90)) { # Batch 3: Feb (need last day of Jan to fill Feb 1)
-for(i in 91:121) { # Batch 4: March
+for(i in c(2:4, 65:90)) { # Batch 3: Feb (need last day of Jan to fill Feb 1)
+  # for(i in 91:121) { # Batch 4: March
   # for(i in 65:70) { # for testing
   # for (i in 53:71) { # for testing
   # for(i in 1:4) { # for testing
   
   # Define input .dat file and output raster file names
-  input_file <- swe_files[i]
+  input_file <- snow_depth_files[i]
   
   # Extract the data from the file name
   date_str <- str_extract(input_file, "\\d{8}")
@@ -100,44 +100,44 @@ for(i in 91:121) { # Batch 4: March
   if(stringr :: str_detect(input_file, pattern = "us")) {
     
     # Read the binary file
-    swe_data <- readBin(input_file, "integer", n = 6935 * 3351, size = 2, signed = TRUE)
+    depth_data <- readBin(input_file, "integer", n = 6935 * 3351, size = 2, signed = TRUE)
     
     # Create a raster object
-    swe.tmp_raster <- raster :: raster(nrows = 3351, ncols = 6935, xmn = -124.733333333333, 
-                                       xmx = -66.9416666666667, ymn = 24.95, ymx = 52.8749999999999, 
-                                       crs = "+proj=longlat +datum=WGS84")
+    depth.tmp_raster <- raster :: raster(nrows = 3351, ncols = 6935, xmn = -124.733333333333, 
+                                         xmx = -66.9416666666667, ymn = 24.95, ymx = 52.8749999999999, 
+                                         crs = "+proj=longlat +datum=WGS84")
     
     # Assign values to the raster
-    values(swe.tmp_raster) <- swe_data
+    values(depth.tmp_raster) <- depth_data
     
     # Name the raster layer
-    names(swe.tmp_raster) <- formatted_date
+    names(depth.tmp_raster) <- formatted_date
     
     # Add the temporary raster to the stack
-    swe_stack_usa <- raster :: addLayer(swe_stack_usa, swe.tmp_raster)
+    depth_stack_usa <- raster :: addLayer(depth_stack_usa, depth.tmp_raster)
     
   } else {
     
     # Read the binary file
-    swe_data <- readBin(input_file, "integer", n = 8192 * 4096, size = 2, signed = TRUE)
+    depth_data <- readBin(input_file, "integer", n = 8192 * 4096, size = 2, signed = TRUE)
     
     # Create a raster object
-    swe.tmp_raster <- raster :: raster(nrows = 4096, ncols = 8192, xmn = -130.51250000000002, 
-                                       xmx = -66.9416666666667, ymn = 24.95, ymx = 58.229166666666664, 
-                                       crs = "+proj=longlat +datum=WGS84")
+    depth.tmp_raster <- raster :: raster(nrows = 4096, ncols = 8192, xmn = -130.51250000000002, 
+                                         xmx = -66.9416666666667, ymn = 24.95, ymx = 58.229166666666664, 
+                                         crs = "+proj=longlat +datum=WGS84")
     
     # Assign values to the raster
-    values(swe.tmp_raster) <- swe_data
+    values(depth.tmp_raster) <- depth_data
     
     # Name the raster layer
-    names(swe.tmp_raster) <- formatted_date
+    names(depth.tmp_raster) <- formatted_date
     
     # Add the temporary raster to the stack
-    swe_stack_can <- addLayer(swe_stack_can, swe.tmp_raster)
+    depth_stack_can <- addLayer(depth_stack_can, depth.tmp_raster)
     
   } # end of if/else
   print(i)
-} # end of swe loop
+} # end of depth loop
 
 print("Separate Stacks for USA and Canada Created")
 
@@ -161,14 +161,14 @@ print(object.size(x=lapply(ls(), get)), units="Mb")
 ###########################################
 
 # Convert the Rasterstacks to spatrasters
-can <- terra :: rast(swe_stack_can)
+can <- terra :: rast(depth_stack_can)
 print("Canada converted to spatraster")
 
-usa <- terra :: rast(swe_stack_usa)
+usa <- terra :: rast(depth_stack_usa)
 print("USA converted to spatraster")
 
 # Clean up workspace
-rm(swe_stack_can, swe_stack_usa, swe.tmp_raster)
+rm(depth_stack_can, depth_stack_usa, depth.tmp_raster)
 gc()
 
 # Resample USA data
@@ -280,10 +280,10 @@ can <- terra :: crop(can, ext)
 # Write the raster stack
 # path <- "/gpfs1/data/iupdate/Analysis_Output2/Insects/"
 path <- "~/share/groups/mas/04_personal/Kim_T/Insect Cold Tolerance/00_Data/Individual Spatial Predictors/SNODAS/"
-# writeRaster(can, paste(path, "SWE Canada USA_December.tif", sep = ""), overwrite = TRUE)
-# writeRaster(can, paste(path, "SWE Canada USA_January.tif", sep = ""), overwrite = TRUE)
-# writeRaster(can, paste(path, "SWE Canada USA_February.tif", sep = ""), overwrite = TRUE)
-writeRaster(can, paste(path, "SWE Canada USA_March.tif", sep = ""), overwrite = TRUE)
+# writeRaster(can, paste(path, "Snow Depth Canada USA_December.tif", sep = ""), overwrite = TRUE)
+# writeRaster(can, paste(path, "Snow Depth Canada USA_January.tif", sep = ""), overwrite = TRUE)
+writeRaster(can, paste(path, "Snow Depth Canada USA_February.tif", sep = ""), overwrite = TRUE)
+# writeRaster(can, paste(path, "Snow Depth Canada USA_March.tif", sep = ""), overwrite = TRUE)
 
 print("Raster stack written")
 
