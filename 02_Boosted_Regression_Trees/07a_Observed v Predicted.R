@@ -157,6 +157,16 @@ h5.plot <- ggplot() +
   theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
 
 
+combined_plot <- ggarrange(
+  external + ggtitle("Control"), 
+  house0 + ggtitle("+0C"),
+  house3 + ggtitle("+3C"), 
+  house5 + ggtitle("+5C"),
+  ncol = 2, 
+  nrow = 2
+)
+
+
 #####################################
 ###                               ###
 ###    observed v. Predicted      ###
