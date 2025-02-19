@@ -50,10 +50,11 @@ library( gbm) #Boosted regression tree package that is used in Elith's 2008 tuto
 ##############################################################
 
 path <- "00_Data/"
+# setwd("H:/My Drive/Ch 4 Bumblebees/Overwintering Insects_Publication/Overwintering-Insects_Publication/00_Data")
 # setwd("L:/LabMemberFolders/KimberlyThompson/Ch 4 Bumblebees/Analysis/Data")
 
-subnivium<-as.data.frame(read.csv(file="Subniv Temps and Predictors_complete.csv"),
-                         header = TRUE)
+subnivium <- as.data.frame(read.csv(file="Subniv Temps and Predictors_complete.csv",
+                         header = TRUE))
 #Fix the dates
 subnivium$Date<-gsub("/", "-", subnivium$Date)
 subnivium$Date<-parse_date_time(subnivium$Date, c("%Y-%m-%d", "%m-%d-%Y"), tz = "US/Central")
@@ -147,6 +148,9 @@ for (i in 1:50) {
 end.time <- Sys.time()
 end.time - start.time
 
+# Save the dataframe
+setwd("H:/My Drive/Ch 4 Bumblebees/Analysis/Results/Spatial Predictions")
+write.csv(subext.boot, "External - Prediction Dataframe_50 Samples.csv", row.names = FALSE)
 
 # calculate Root Mean Square Error and deviance for each column, being sure to
 # Specify the BRT model settings that were used in the creation
