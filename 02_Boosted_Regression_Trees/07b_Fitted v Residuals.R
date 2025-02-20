@@ -5,14 +5,9 @@
 #####                       (Model evaluation part 2)                     #####
 ###############################################################################
 
-# This script assesses whether their is dependence in the residuals, likely
-# due to either spatial or temporal autocorrelation.
-
-# Studies have shown that randomly selecting subsets of data to use as the 
-# testing and training sets can lead to overconfident errors (i.e., lower
-# errors than would be expected if the underlying structure of the data - 
-# spatial or temporal, was accounted for)
-
+# This script creates plots of residual vs. fitted values to evaluate
+# whether there is overfitting. We are looking for random scatter around
+# the zero line.
 
 
 # Clean workspace and load required packages
@@ -20,6 +15,8 @@ rm(list = ls() )
 gc() #releases memory
 
 library(tidyverse)
+library(ggplot2)
+library(ggpubr)
 
 #####################################
 ###                               ###
@@ -194,40 +191,120 @@ for(i in 1:length(house5$ID)) {
 
 #####################################
 ###                               ###
-###      Examine Dependence       ###
+###            Plotting           ###
 ###                               ###
 #####################################
 
-acf(external$summarized.resid)
-acf(house0$summarized.resid)
-acf(house3$summarized.resid)
-acf(house5$summarized.resid)
+# Loop through each treatment
+for (j in 1:4) {
+  
+  if(j == 1) {
+    master <- external
+    graph.title <- "external"
+  } else {
+    if(j == 2) {
+      master <- house0
+      graph.title <- "house0"
+    } else {
+      if(j == 3) {
+        master <- house3
+        graph.title <- "house3"
+      } else {
+        if(j == 4) {
+          master <- house5
+          graph.title <- "house5"
+        }
+      }
+    }
+  }
+
+resid.plot <- ggplot(data = master) +
+  geom_point(aes(x = summarized.pred, y = summarized.resid),
+            size = 1) +
+  geom_hline(yintercept = 0, color = "red") +
+  scale_y_continuous(lim = c(-10, 7), name = "Residuals",
+                     breaks = c(-10, -5, 0, 5)) +
+  scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
+                   breaks = c(-15, -10, -5, 0, 5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(size=22, face="bold")) +
+  theme(axis.text.y = element_text(size=22, face="bold")) +
+  theme(axis.title.x = element_text(size=22, face="bold", color="gray30")) +
+  theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
+
+setwd("H:/My Drive/Ch 4 Bumblebees/Analysis/Graphs/Boosted Regression Trees/Residuals")
+ggsave(paste("Residual plot_", graph.title, ".jpg", sep = ""),
+       resid.plot, device = "jpeg",
+       width = 7, height = 5, dpi = 300)
+
+print(j)
+
+}
 
 
-plot(external$summarized.pred, external$summarized.resid,
-     xlab = "Fitted Values", ylab = "Residuals",
-     main = "Residuals vs Fitted")
-abline(h = 0, col = "red")
+#####################################
+###                               ###
+###            GGArrange          ###
+###                               ###
+#####################################
+
+resid.ext <- ggplot(data = external) +
+  geom_point(aes(x = summarized.pred, y = summarized.resid),
+             size = 1) +
+  geom_hline(yintercept = 0, color = "red") +
+  scale_y_continuous(lim = c(-10, 7), name = "Residuals",
+                     breaks = c(-10, -5, 0, 5)) +
+  scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
+                     breaks = c(-15, -10, -5, 0, 5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(size=22, face="bold")) +
+  theme(axis.text.y = element_text(size=22, face="bold")) +
+  theme(axis.title.x = element_text(size=22, face="bold", color="gray30")) +
+  theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
+
+resid.h0 <- ggplot(data = house0) +
+  geom_point(aes(x = summarized.pred, y = summarized.resid),
+             size = 1) +
+  geom_hline(yintercept = 0, color = "red") +
+  scale_y_continuous(lim = c(-10, 7), name = "Residuals",
+                     breaks = c(-10, -5, 0, 5)) +
+  scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
+                     breaks = c(-15, -10, -5, 0, 5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(size=22, face="bold")) +
+  theme(axis.text.y = element_text(size=22, face="bold")) +
+  theme(axis.title.x = element_text(size=22, face="bold", color="gray30")) +
+  theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
+
+resid.h3 <- ggplot(data = house3) +
+  geom_point(aes(x = summarized.pred, y = summarized.resid),
+             size = 1) +
+  geom_hline(yintercept = 0, color = "red") +
+  scale_y_continuous(lim = c(-10, 7), name = "Residuals",
+                     breaks = c(-10, -5, 0, 5)) +
+  scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
+                     breaks = c(-15, -10, -5, 0, 5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(size=22, face="bold")) +
+  theme(axis.text.y = element_text(size=22, face="bold")) +
+  theme(axis.title.x = element_text(size=22, face="bold", color="gray30")) +
+  theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
+
+resid.h5 <- ggplot(data = house5) +
+  geom_point(aes(x = summarized.pred, y = summarized.resid),
+             size = 1) +
+  geom_hline(yintercept = 0, color = "red") +
+  scale_y_continuous(lim = c(-10, 7), name = "Residuals",
+                     breaks = c(-10, -5, 0, 5)) +
+  scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
+                     breaks = c(-15, -10, -5, 0, 5)) +
+  theme_bw() +
+  theme(axis.text.x = element_text(size=22, face="bold")) +
+  theme(axis.text.y = element_text(size=22, face="bold")) +
+  theme(axis.title.x = element_text(size=22, face="bold", color="gray30")) +
+  theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
 
 
-plot(house0$summarized.pred, house0$summarized.resid,
-     xlab = "Fitted Values", ylab = "Residuals",
-     main = "Residuals vs Fitted")
-abline(h = 0, col = "red")
-
-plot(house3$summarized.pred, house3$summarized.resid,
-     xlab = "Fitted Values", ylab = "Residuals",
-     main = "Residuals vs Fitted")
-abline(h = 0, col = "red")
-
-plot(house5$summarized.pred, house5$summarized.resid,
-     xlab = "Fitted Values", ylab = "Residuals",
-     main = "Residuals vs Fitted")
-abline(h = 0, col = "red")
-
-
-plot(external$summarized.resid, type = "l",
-     xlab = "Observation Order", ylab = "Residuals",
-     main = "Residuals Time Sequence Plot")
-
-Box.test(external$summarized.resid, type = "Ljung-Box")
+ggarrange(plotlist = c(resid.ext, resid.h0, resid.h3, resid.h5),
+          ncol = 2, nrow = 2,
+          labels = c("External Control", "+0°C", "+3°C", "+5°C"))
