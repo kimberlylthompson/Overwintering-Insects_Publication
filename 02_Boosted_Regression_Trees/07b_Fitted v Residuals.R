@@ -256,6 +256,8 @@ resid.ext <- ggplot(data = external) +
                      breaks = c(-10, -5, 0, 5)) +
   scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
                      breaks = c(-15, -10, -5, 0, 5)) +
+  annotate("text", x = 6.5, y = 6, label = "(a)",
+            size = 10) +
   theme_bw() +
   theme(axis.text.x = element_text(size=22, face="bold")) +
   theme(axis.text.y = element_text(size=22, face="bold")) +
@@ -270,6 +272,8 @@ resid.h0 <- ggplot(data = house0) +
                      breaks = c(-10, -5, 0, 5)) +
   scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
                      breaks = c(-15, -10, -5, 0, 5)) +
+  annotate("text", x = 6.5, y = 6, label = "(b)",
+           size = 10) +
   theme_bw() +
   theme(axis.text.x = element_text(size=22, face="bold")) +
   theme(axis.text.y = element_text(size=22, face="bold")) +
@@ -284,6 +288,8 @@ resid.h3 <- ggplot(data = house3) +
                      breaks = c(-10, -5, 0, 5)) +
   scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
                      breaks = c(-15, -10, -5, 0, 5)) +
+  annotate("text", x = 6.5, y = 6, label = "(c)",
+           size = 10) +
   theme_bw() +
   theme(axis.text.x = element_text(size=22, face="bold")) +
   theme(axis.text.y = element_text(size=22, face="bold")) +
@@ -298,6 +304,8 @@ resid.h5 <- ggplot(data = house5) +
                      breaks = c(-10, -5, 0, 5)) +
   scale_x_continuous(lim = c(-15, 7), name = "Fitted Values",
                      breaks = c(-15, -10, -5, 0, 5)) +
+  annotate("text", x = 6.5, y = 6, label = "(d)",
+           size = 10) +
   theme_bw() +
   theme(axis.text.x = element_text(size=22, face="bold")) +
   theme(axis.text.y = element_text(size=22, face="bold")) +
@@ -305,6 +313,44 @@ resid.h5 <- ggplot(data = house5) +
   theme(axis.title.y = element_text(size=22, face="bold", color="gray30"))
 
 
-ggarrange(plotlist = c(resid.ext, resid.h0, resid.h3, resid.h5),
-          ncol = 2, nrow = 2,
-          labels = c("External Control", "+0°C", "+3°C", "+5°C"))
+# Remove axis labels and titles from all plots except the bottom-left and bottom-right ones
+# resid.ext <- resid.ext + 
+#   theme(axis.title.x = element_blank(),
+#         axis.text.x = element_blank())
+# 
+# resid.h0 <- resid.h0 + 
+#   theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
+#         axis.text.x = element_blank(), axis.text.y = element_blank())
+# 
+# resid.h5 <- resid.h5 + 
+#   theme(axis.title.y = element_blank(), axis.text.y = element_blank())
+
+# Combine the plots
+# First, create a list of your plots
+plot_list <- list(resid.ext, resid.h0, resid.h3, resid.h5)
+
+# Create a list of labels
+labels <- c("External environment", "+0°C", "+3°C", "+5°C")
+
+# Function to add label to each plot
+add_label <- function(plot, label) {
+  plot + 
+    ggtitle(label) +
+    theme(plot.title = element_text(hjust = 0.5, face = "bold",
+                                    size = 22, margin = margin(b = 10)))
+}
+
+# Apply labels to plots
+labeled_plots <- mapply(add_label, plot_list, labels, SIMPLIFY = FALSE)
+
+# Combine the plots
+combined_plot <- ggarrange(
+  plotlist = labeled_plots,
+  ncol = 2, nrow = 2,
+  align = "hv"
+)
+
+setwd("H:/My Drive/Ch 4 Bumblebees/Analysis/Graphs/Boosted Regression Trees/Residuals")
+ggsave("Four panel residual plot.jpg",
+              combined_plot, device = "jpeg",
+              width = 10, height = 8, dpi = 300)
